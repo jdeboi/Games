@@ -28,16 +28,18 @@ class Player {
      // bulb
      int xp = x + (playerSpacing - 
        ((int) (cflScale * 1.0 * cflLit.width / cflLit.height))) /2;
-     int yp = windowHeight - playerSpacing - scoreHeight - cflScale - 20;
+     int yp = windowHeight - playerSpacing - scoreHeight - cflScale;
      displayBulb(xp, yp);
     
+    // score + name
+     yp = yp + cflScale;
+     displayScore(x, yp);
+     
      // icon
-     yp = yp + cflScale + 20;
+     yp = yp + scoreHeight;
      displayIcon(x, yp, playerSpacing); 
      
-     // score + name
-     yp = yp + playerSpacing;
-     displayScore(x, yp);
+     
      
    }
    
@@ -63,18 +65,18 @@ class Player {
    
    void displayScore(int xp, int yp) {
      // background
-     fill(#131F0D);
+     fill(0);
      stroke(0);
      rect(xp, yp, playerSpacing, scoreHeight);
      
      // name
      fill(255);
      textSize(20);
-     text(name, xp + 5, yp + 30);
+     text(name, xp + 5, yp + 25);
      
      // score
-     textSize(30);
-     text("$" + score, xp + 5, yp + 60);
+     textSize(20);
+     text("$" + score, xp + 5, yp + 55);
    }
    
    void updateScore(int points) {

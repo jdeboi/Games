@@ -14,9 +14,9 @@ Game ends when there are no more questions.
 */
 
 ///////////UPDATE////////////////
-int numPlayers = 6;
-int correctPoints = 5;
-int incorrectPoints = -3;
+int numPlayers = 7;
+int correctPoints = 500;
+int incorrectPoints = -300;
 char[] playerKeys = {'a', 's', 'd', 'f', 'g', 'h', 'j'};
 String[] playerNames = 
 {
@@ -25,10 +25,10 @@ String[] playerNames =
   "Chuck"
 };
 String[] questions = {
-  "What is the capital of Louisiana?",
-  "Name the 7 continents.",
-  "What color is the sky?",
-  "Who is the US president?",
+  "Where is Russia?",
+  "Who is the US President?",
+  "What is JZ's favorite color?", 
+  "What is the highest number to which a human has counted?"
 };
 /////////////////////////////////
 
@@ -36,13 +36,14 @@ Player[] players;
 boolean buzzed = false;
 boolean finished = false;
 boolean tie = false;
+boolean answered = false;
 int playerBuzzed;
 int currentQuestion;
 int xOffset = 100;
 int yOffset = 200;
 int windowWidth = 1200;
 int windowHeight = 600;
-PImage chalkboard;
+PImage fruitBowl;
 PImage cfl;
 PImage cflLit;
 int questionTextSize = 40;
@@ -51,7 +52,7 @@ int playerSpacing = 160;
 int cflScale;
 int xPlayerOffset;
 int yPlayerOffset;
-int scoreHeight = 90;
+int scoreHeight = 60;
 int winner;
 
 /////////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ void setup() {
   yPlayerOffset = 250;
   
   // load images
-  chalkboard = loadImage("blackboard.jpeg");
+  fruitBowl = loadImage("fruitbowl.jpg");
   cfl = loadImage("cfl0.png");
   cflLit = loadImage("cfl1.png");
   
@@ -93,26 +94,31 @@ void setup() {
 //DRAW///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void draw() {
-  background(120);
-  image(chalkboard, 0, 0);
+  background(255);
+  image(fruitBowl, 0, 30);
   for(int i = 0; i < numPlayers; i++) {
     players[i].display();
   }
   
   if (!finished) {
     if(questions.length != 0){
-      drawQuestion(questions[currentQuestion], 100, 100);
+      fill(0);
+      stroke(0);
+      drawQuestion(questions[currentQuestion], 300, 150);
     }
   }
   else {
+    textSize(30);
+    fill(0);
+    stroke(0);
     if(!tie) {
-      text(playerNames[winner] + " wins!", 100, 100);
+      text(playerNames[winner] + " wins!", 300, 100);
     }
     else {
-      text("Tie game!", 100, 100);  
+      text("Tie game!", 300, 100);  
     }
     textSize(20);
-    text("Press 'n' to restart.", 100, 130);
+    text("Press 'n' to restart.", 300, 150);
   }
 }
 
@@ -155,11 +161,7 @@ void keyPressed() {
         players[playerBuzzed].updateScore(correctPoints);
         players[playerBuzzed].buzzer();
         buzzed = false;
-        currentQuestion++;
-        if(currentQuestion == questions.length) {
-          finished = true;
-          setWinner();
-        }
+        answered = true;
       }
       // if the player answered incorrectly
       else if (key == 'w') {
@@ -170,12 +172,15 @@ void keyPressed() {
     }
     else if (key == 'q') {
       currentQuestion++;
+      answered = false;
       if(currentQuestion == questions.length){
         currentQuestion = 0;
+        finished = true;
+        setWinner();
       }
     }
     // to restart the game and reset keys
-    else {
+    else if (!answered) {
       for(int i = 0; i < numPlayers; i++) {
         if(key == playerKeys[i]) {
           playerBuzzed = i;

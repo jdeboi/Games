@@ -61,7 +61,7 @@ int scoreH = yTopOffset - scoreY - 70;
 //SETUP//////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void setup() {
-  size(windowWidth, windowHeight);
+  size(windowWidth, windowHeight, P3D);
   hurdles = new int[numHurdles];
   sprinters = new Sprinter[numSprinters];
   finished = new int[numSprinters];
@@ -130,6 +130,20 @@ void drawTrack() {
 }
 
 void drawHurdles() {
+  int xTop = 200;
+  int xBottom = 100;
+  int x1 = (windowWidth - 2*xTop)/numHurdles;
+  int x2 = (windowWidth - 2*xBottom)/numHurdles;
+  int y1 = yTopOffset;
+  int y2 = yTopOffset + laneHeight * numLanes;
+  fill(0);
+  for(int i = 0; i <= numHurdles; i++) {
+    //line(x1 * i + xTop, y1, x2 * i + xBottom, y2);
+    box(
+  }
+} 
+
+void drawHurdles1() {
   for(int i = 0; i < numLanes; i++) {
     for(int j = 0; j < numHurdles; j++) {
       int legLength = 20;
