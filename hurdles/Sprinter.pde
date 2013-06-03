@@ -27,7 +27,7 @@ class Sprinter {
   
   Sprinter(int xp, int yp, String n, char l, char r, int ni) {
     x = xp;
-    y = yp;
+    y = 0;
     name = n;
     leftKey = l;
     rightKey = r;

@@ -17,8 +17,8 @@ String[] playerNames = {"Jenna", "Ian", "Cecilia", "Ben", "Katie", "Marc"};
 char[] leftKey = {'z', 'j', 'n', 'c', 'g', 'o'};
 char[] rightKey = {'x', 'k', 'm', 'v', 'h', 'p'};
 int[] numCharacterImages = {12, 8, 5, 8, 3, 3};
-int windowWidth = 1200;
-int windowHeight = 800;
+int windowWidth = 1400;
+int windowHeight = 900;
 /////////////////////////////////
 
 //////MAY NEED ADJUSTMENT////////
@@ -41,13 +41,15 @@ int finishedIndex;
 int sprinterHeight = 100;
 
 // Track variables
-int yTopOffset = 200;
+int angle = 25;
+int yTopOffset = 300;
 int yBottomOffset = 100;
 int numLanes = 6;
-int trackHeight = windowHeight - yTopOffset - yBottomOffset;
+int trackHeight = 700;
 int laneHeight = trackHeight / numLanes;
 int xStartOffset = 70;
 int xNumberOffset = xStartOffset + 30;
+int startLine = 80;
 
 // scoreboard variables
 int countX = 150;
@@ -78,13 +80,34 @@ void setup() {
 /////////////////////////////////////////////////////////////
 void draw() {
   background(120);
-  drawTrack();
-  drawHurdles();
-  drawScoreBoard();
-  drawFinishLine();
+  translate(0, -100, -450);
+  
+  //TRACK//////////////////////
+  pushMatrix();
+    rotateX(angle * PI / 180);
+    lights();
+    ambientLight(100, 100, 100);
+    drawTrack();
+    drawLines();
+    drawStart();
+    drawNumbers();
+    drawHurdles();
+    drawScoreBoard();
+    drawFinishLine();
+  popMatrix();
+  ////////////////////////////
+  
+  //PLAYERS///////////////////
   for (int i = 0; i < numSprinters; i++) {
+    pushMatrix();
+    int y = (int) ((yTopOffset + (i + 1.0 - .1) * laneHeight - 100) * cos(angle * PI / 180));
+    int z = (int) ((yTopOffset + (i + 1.0) * laneHeight) * sin(angle * PI / 180));
+    translate(0, y, z);
     sprinters[i].display();
+    popMatrix();
   }
+  ////////////////////////////
+  
   if (countStarted) {
     if (millis() - startClock > 3000){
       raceStarted = true;
@@ -108,28 +131,63 @@ void draw() {
 
 void drawTrack() {
   // track 
-  fill(#D35226);
+  fill(#7C3418);
   noStroke();
-  rect(0, yTopOffset, width, trackHeight);
+  pushMatrix();
+  translate(0, 0, -1);
+  rect(-500, yTopOffset, windowWidth + 1000, trackHeight);
+  popMatrix();
+}
+
+void drawLines() {
   // lane lines
   strokeWeight(5);
-  stroke(255);
+  noStroke();
   fill(255);
+  int lineWidth = 10;
   for(int i = 0; i <= numLanes; i++) {
-    line(0, yTopOffset + i * laneHeight, width, yTopOffset + i * laneHeight);
+    int y = yTopOffset + laneHeight * i;
+    rect(-500, y - lineWidth/2, windowWidth + 1000, lineWidth);
+    //line(-500, y, windowWidth + 1000, y);
   }
-  // starting line
-  stroke(255);
+}
+
+void drawStart() {
   strokeWeight(10);
-  line(xStartOffset, yTopOffset, xStartOffset, trackHeight + yTopOffset - 1);
-  // lane numbers
-  textFont(f);
-  for(int i = 1; i <= numLanes; i++) {
-    text(i, xNumberOffset, yTopOffset + i * laneHeight);
+  fill(255);
+  noStroke();
+  int lineWidth = 10;
+  rect(startLine, yTopOffset, lineWidth, trackHeight);
+  //line(startLine, yTopOffset, startLine, yTopOffset + trackHeight - 1);
+}
+
+void drawNumbers() {
+  fill(255);
+  stroke(255);
+  int textSize = 80;
+  int x = startLine + 20;
+  for (int i = 0; i < numLanes; i++) {
+    int y = yTopOffset + laneHeight * i + textSize;
+    textSize(textSize);
+    text(i + 1, x, y);
   }
 }
 
 void drawHurdles() {
+    for(int i = 0; i <= numHurdles; i++) {
+    int x = windowWidth / (numHurdles + 2) * i + (windowWidth / numHurdles);
+    line(x, yTopOffset, x, yTopOffset + trackHeight);
+    pushMatrix();
+      translate(x, yTopOffset + trackHeight/2, 0);
+      noStroke();
+      fill(#E0A639);
+      strokeWeight(2);
+      box(20, trackHeight, 60);
+    popMatrix();  
+  }
+}
+
+void drawHurdles0() {
   int xTop = 200;
   int xBottom = 100;
   int x1 = (windowWidth - 2*xTop)/numHurdles;
@@ -139,7 +197,7 @@ void drawHurdles() {
   fill(0);
   for(int i = 0; i <= numHurdles; i++) {
     //line(x1 * i + xTop, y1, x2 * i + xBottom, y2);
-    box(
+    box(30, 100, 50);
   }
 } 
 
@@ -209,6 +267,8 @@ void drawFinishLine() {
   int xline = width - 60;
   int boxW = 25;
   int boxH = laneHeight/2;
+  pushMatrix();
+  translate(0, 0, 1);
   for(int i = 0; i < numLanes; i++) {
     noStroke();
     // top left box
@@ -224,6 +284,7 @@ void drawFinishLine() {
     fill(0);
     rect(xline + boxW, yTopOffset + i * laneHeight + boxH, boxW, boxH);
   }
+  popMatrix();
 }  
 
 /////////////////////////////////////////////////////////////
@@ -295,4 +356,13 @@ float getRaceTime() {
     return 0.00;
   }
 }
+
+void mouseDragged(){
+  // camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
+  // default: camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), 
+  //                 width/2.0, height/2.0, 0, 
+  //                 0, 1, 0)
+  camera(mouseX, mouseY, (height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height/2.0, 0, 0, 1, 0);
+}
+
 
