@@ -64,7 +64,7 @@ class Sprinter {
     // image 1 - jump
     // image 2 - standing still (first image of run cycle)
     int frameMultiplier = 3;
-    int jumpHeight = 30;
+    int jumpHeight = 60;
     float xpos = width * 1.0 / trackLength * position;
     if (fallDown){
       int w = images[0].width * sprinterHeight / images[0].height;
@@ -213,7 +213,7 @@ class Sprinter {
     if(position < trackLength) {
       currentHurdle = (int) (position * 1.0 / trackLength * numHurdles);
       if(hitHurdle(hurdles[currentHurdle])) {
-        position+=30;
+        position = hurdles[currentHurdle] + 30;
         fallDown();
       }
     }
@@ -254,7 +254,7 @@ class Sprinter {
   }
   
   boolean atHurdle(int hurdlePosition) {
-    return (position > hurdlePosition && position < hurdlePosition + 30);
+    return (position > hurdlePosition - 30 && position < hurdlePosition + 30);
   }
   
   boolean hitHurdle(int pos) {

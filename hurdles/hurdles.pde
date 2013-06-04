@@ -13,9 +13,19 @@ jdeboi.com
 int numSprinters = 6;
 int numHurdles = 5;
 int trackLength = 5000;
-String[] playerNames = {"Jenna", "Ian", "Cecilia", "Ben", "Katie", "Marc"};
-char[] leftKey = {'z', 'j', 'n', 'c', 'g', 'o'};
-char[] rightKey = {'x', 'k', 'm', 'v', 'h', 'p'};
+String[] playerNames = {"Sonic", "Chewy", "Luigi", "Walker", "Mario", "Nyan"};
+char[][] playerKeys = 
+{
+  // player 1: left, right
+  {'z', 'x'},
+  // player 2: left, right
+  {'j', 'k'},
+  //...
+  {'n', 'm'},
+  {'o', 'p'},
+  {'g', 'h'},
+  {'c', 'v'}
+};
 int[] numCharacterImages = {12, 8, 5, 8, 3, 3};
 int windowWidth = 1400;
 int windowHeight = 900;
@@ -69,7 +79,8 @@ void setup() {
   finished = new int[numSprinters];
   for(int i = 0; i < numSprinters; i++) {
     int yp = yTopOffset + laneHeight * i - 30;
-    sprinters[i] = new Sprinter(0, yp, playerNames[i], leftKey[i], rightKey[i], numCharacterImages[i]);
+    sprinters[i] = new Sprinter(0, yp, playerNames[i], playerKeys[i][0], 
+      playerKeys[i][1], numCharacterImages[i]);
   }
   f = createFont("Arial", 80, true);
   setHurdles();
@@ -86,6 +97,7 @@ void draw() {
   pushMatrix();
     rotateX(angle * PI / 180);
     lights();
+    ambientLight(200, 200, 200);
     ambientLight(100, 100, 100);
     drawTrack();
     drawLines();
@@ -169,7 +181,7 @@ void drawNumbers() {
   for (int i = 0; i < numLanes; i++) {
     int y = yTopOffset + laneHeight * i + textSize;
     textSize(textSize);
-    text(i + 1, x, y);
+    text((i + 1) + " " + playerNames[i], x, y);
   }
 }
 
