@@ -65,18 +65,20 @@ class Sprinter {
     // image 2 - standing still (first image of run cycle)
     int frameMultiplier = 3;
     int jumpHeight = 60;
-    float xpos = width * 1.0 / trackLength * position;
-    if (fallDown){
+    int imgw = (int) (images[2].width * 1.0 * sprinterHeight / images[2].height);
+    float xpos = width * 1.0 / trackLength * position - imgw;
+    if(!raceStarted) {
+      int w = images[2].width * sprinterHeight / images[2].height;
+      image(images[2], xpos, y, w, sprinterHeight);
+    }
+    else if (fallDown){
       int w = images[0].width * sprinterHeight / images[0].height;
-      image(images[0], xpos, y, w, sprinterHeight); 
+      image(cloud, xpos, y - 2 * jumpHeight, w, sprinterHeight);
+      image(images[0], xpos, y - jumpHeight, w, sprinterHeight); 
     }
     else if(jumping) {
       int w = images[1].width * sprinterHeight / images[1].height;
       image(images[1], xpos, y - jumpHeight, w, sprinterHeight);
-    }
-    else if(speed == 0) {
-      int w = images[2].width * sprinterHeight / images[2].height;
-      image(images[2], xpos, y, w, sprinterHeight);
     }
     else {
       int w = images[frame/frameMultiplier].width * 100 / 
@@ -94,8 +96,6 @@ class Sprinter {
     fill(0);
     strokeWeight(1);
     textSize(14);
-    text(name, x, y + 90);
-    text(speed, x, y + 110);
     text(position, x, y + 130);
     text("Jumping? " + jumping, x, y + 150);
   }
@@ -114,20 +114,21 @@ class Sprinter {
   //CHECK INPUTS///////////////////////////////////////////////
   /////////////////////////////////////////////////////////////
   void checkPressed(char k) {
-    if(k == leftKey){
-      airborne = false;
-      if(steps % 2 == 0) {
-        leftDown = true;
-        step();
-      } 
-    }
-    else if(k == rightKey){
-      airborne = false;
-      if(steps % 2 == 1) {
-        rightDown = true;
-        step();
+      if(k == leftKey){
+        airborne = false;
+        if(steps % 2 == 0) {
+          leftDown = true;
+          step();
+        } 
       }
-    }
+      else if(k == rightKey){
+        airborne = false;
+        if(steps % 2 == 1) {
+          rightDown = true;
+          step();
+        }
+      }
+   // }
   }
   
   void checkReleased(char k) {
@@ -152,39 +153,25 @@ class Sprinter {
   //UPDATE POSITION////////////////////////////////////////////
   /////////////////////////////////////////////////////////////
   void move() {
-    updateSpeed();
     updatePosition();
     updateHurdle();
     updateJumping();
   }
   
-  void updateSpeed() {
-    if(!jumping) {
-      speed = 10.0/(millis() - lastStep);
-      if(speed < 0.015) {
-        speed = 0;
-      }
-    }
-  }
-  
   void updatePosition() {
     if (fallDown) {
-      fallDownCount++;
-      if(fallDownCount == fallDownStall){
+      if(position <= hurdles[currentHurdle] + ratio * (hurdleWidth/2 + sprinterWidth)){
+        position+= fallSize;
+      }
+      else {
         fallDown = false;
-        fallDownCount = 0;
-        lastTime = millis();
       }
     }
     else if (jumping) {
-      // TODO update with jump speed
-      position+=2;
-      lastTime = millis();
+      position+=jumpSize;
     }
     else {
-      int t = millis() - lastTime;
-      position += speed * t;
-      lastTime = millis();
+      position+=cycleSize;
     }
   }
   
@@ -211,9 +198,7 @@ class Sprinter {
  
   void updateHurdle() {
     if(position < trackLength) {
-      currentHurdle = (int) (position * 1.0 / trackLength * numHurdles);
-      if(hitHurdle(hurdles[currentHurdle])) {
-        position = hurdles[currentHurdle] + 30;
+      if(hitHurdle()) {
         fallDown();
       }
     }
@@ -224,8 +209,10 @@ class Sprinter {
   /////////////////////////////////////////////////////////////
   void step() {
     airborne = false;
-    steps++;
-    lastStep = millis();
+    if(!jumping && !fallDown) {
+      steps++;
+      position+=stepSize;
+    }
   }
   
   void fallDown() {
@@ -253,12 +240,19 @@ class Sprinter {
     }
   }
   
-  boolean atHurdle(int hurdlePosition) {
-    return (position > hurdlePosition - 30 && position < hurdlePosition + 30);
+  boolean atHurdle() {
+    for(int i = 0; i < numHurdles; i++) {
+      if(position > hurdles[i] - ratio * (hurdlePadding + hurdleWidth/2)
+        && position < hurdles[i] + ratio * (hurdleWidth/2 + sprinterWidth)) {
+          currentHurdle = i;
+          return true;
+      }
+    }
+    return false;
   }
   
-  boolean hitHurdle(int pos) {
-    return (!jumping && atHurdle(pos));
+  boolean hitHurdle() {
+    return (!jumping && atHurdle());
   }
   
   boolean isFinished() {

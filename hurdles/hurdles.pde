@@ -31,10 +31,11 @@ int windowWidth = 1400;
 int windowHeight = 900;
 /////////////////////////////////
 
+float ratio = trackLength / windowWidth;
+
 //////MAY NEED ADJUSTMENT////////
 int fallDownStall = 80;
 int jumpThreshold = 300;
-int jumpLength = 100;
 /////////////////////////////////
 
 Sprinter[] sprinters;
@@ -49,6 +50,7 @@ static int playerIndex;
 int[] finished;
 int finishedIndex;
 int sprinterHeight = 100;
+PImage cloud;
 
 // Track variables
 int angle = 25;
@@ -59,7 +61,9 @@ int trackHeight = 700;
 int laneHeight = trackHeight / numLanes;
 int xStartOffset = 70;
 int xNumberOffset = xStartOffset + 30;
-int startLine = 80;
+int startLine = 0;
+int hurdleWidth = 10;
+int hurdleHeight = 60; 
 
 // scoreboard variables
 int countX = 150;
@@ -68,6 +72,17 @@ int scoreX = 70;
 int scoreY = 30;
 int scoreW = windowWidth /2;
 int scoreH = yTopOffset - scoreY - 70;
+
+// position change variables
+int stepSize = 15;
+int jumpSize = 3;
+int cycleSize = 1;
+int fallSize = 1;
+int hurdlePadding = 20;
+int jumpPadding = 20;
+int sprinterWidth = sprinterHeight;
+int jumpLength = (int) (ratio * 
+  (hurdlePadding + hurdleWidth + jumpPadding + sprinterWidth) / jumpSize);
 
 /////////////////////////////////////////////////////////////
 //SETUP//////////////////////////////////////////////////////
@@ -84,6 +99,7 @@ void setup() {
   }
   f = createFont("Arial", 80, true);
   setHurdles();
+  cloud = loadImage("cloud.png");
 }
 
 /////////////////////////////////////////////////////////////
@@ -91,14 +107,13 @@ void setup() {
 /////////////////////////////////////////////////////////////
 void draw() {
   background(120);
-  translate(0, -100, -450);
+  translate(0, -100, -500);
   
   //TRACK//////////////////////
   pushMatrix();
     rotateX(angle * PI / 180);
     lights();
-    ambientLight(200, 200, 200);
-    ambientLight(100, 100, 100);
+    //ambientLight(200, 200, 200);
     drawTrack();
     drawLines();
     drawStart();
@@ -186,58 +201,15 @@ void drawNumbers() {
 }
 
 void drawHurdles() {
-    for(int i = 0; i <= numHurdles; i++) {
-    int x = windowWidth / (numHurdles + 2) * i + (windowWidth / numHurdles);
-    line(x, yTopOffset, x, yTopOffset + trackHeight);
+  for(int i = 0; i < numHurdles; i++) {
+    int x = (int) (hurdles[i] * 1.0 / trackLength * windowWidth);
     pushMatrix();
       translate(x, yTopOffset + trackHeight/2, 0);
       noStroke();
       fill(#E0A639);
       strokeWeight(2);
-      box(20, trackHeight, 60);
+      box(hurdleWidth, trackHeight, hurdleHeight);
     popMatrix();  
-  }
-}
-
-void drawHurdles0() {
-  int xTop = 200;
-  int xBottom = 100;
-  int x1 = (windowWidth - 2*xTop)/numHurdles;
-  int x2 = (windowWidth - 2*xBottom)/numHurdles;
-  int y1 = yTopOffset;
-  int y2 = yTopOffset + laneHeight * numLanes;
-  fill(0);
-  for(int i = 0; i <= numHurdles; i++) {
-    //line(x1 * i + xTop, y1, x2 * i + xBottom, y2);
-    box(30, 100, 50);
-  }
-} 
-
-void drawHurdles1() {
-  for(int i = 0; i < numLanes; i++) {
-    for(int j = 0; j < numHurdles; j++) {
-      int legLength = 20;
-      int stubLength = 15;
-      int xback = (int) (hurdles[j] * 1.0 /trackLength * width);
-      int xfront = xback + 30;
-      int yback = yTopOffset + laneHeight * i - legLength;
-      int yfront = yback + laneHeight;
-      fill(0, 0, 255);
-      stroke(0);
-      strokeWeight(5);
-      
-      line(xback, yback, xback, yback + legLength);
-      line(xback, yback + legLength, xback + stubLength, yback + legLength - 3);
-      
-      line(xback, yback, xfront, yfront);
-      stroke(#FFF276);
-      line(xback, yback - 5, xfront, yfront - 5);
-      stroke(0);
-      line(xback, yback - 10, xfront, yfront - 10);
-      
-      line(xfront, yfront, xfront, yfront + legLength);
-      line(xfront, yfront + legLength, xfront + stubLength, yfront + legLength - 3);
-    }
   }
 }
 
@@ -341,7 +313,7 @@ void finish(){
 }
 
 void setHurdles() {
-  int hurdleSpacing = trackLength / (numHurdles + 1);
+  int hurdleSpacing = trackLength / (numHurdles + 2);
   for(int i = 0; i < numHurdles; i++) {
     hurdles[i] = (i + 1) * hurdleSpacing;
   }

@@ -16,22 +16,6 @@ highlighted.
 - Press the 'r' key to restart the game.
 */
 
-/*
-Thoughts
-- get points by being the first to follow instructions
-and lose points if you mess up. win when player gets to 
-certain score
-
-- pass level by responding in a certain time frame, 
-which gets shorter and shorter over time
-
-- first player presses an input. next player repeats input
-and adds an additional input. if player messes up, removed 
-from the contest. continues until there is one player 
-remaining
-
-*/
-
 /////////////////////////////////////////////////////////////
 //VARIABLES//////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
@@ -59,54 +43,67 @@ int penalty = numPlayers;
 int reward = 4 * numPlayers;
 /////////////////////////////////
 
-boolean [] bodyParts = new boolean[4];
 Player[] players;
-boolean waiting;
+boolean [] bodyParts = new boolean[4];
+
+// boolean states
+boolean waiting = true;
+boolean menu = true;
+
+// time variables
 int waitTime;
 int playerCount = 0;
-int windowWidth;
-int windowHeight;
+
+// position variables
+int windowWidth = 1400;
+int windowHeight = 780;
 int playerSpacing;
 int xPlayerOffset;
 int yPlayerOffset;
 int iconSize;
+
+// images
 PImage moon;
 PImage helmet;
+
+// keys
+char restartKey = 'r';
+char startKey = '0';
+
+// body variables
+color highlight = #C8FF52;
+color stickColor = 220;
+int xOffset;
+int yOffset = 100;
+int bodyLength = 200;
+int armHeight = 80;
+int legHeight = bodyLength;
+int footLen = 20;
 
 
 /////////////////////////////////////////////////////////////
 //SETUP//////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void setup() {
-  // load helmet image
+  // images
   helmet = loadImage("helmet.png");
-  // load background image
-  moon = loadImage("moon.jpg");
-  windowWidth = moon.width;
-  windowHeight = moon.height + 150;
+  moon = loadImage("moon2.jpg");
   
-  // variables to align character images
+  // position variables
+  //windowWidth = moon.width;
+  //windowHeight = moon.height + 150;
   playerSpacing = windowWidth / (numPlayers + 1);
   iconSize = (int) (playerSpacing/1.5);
   xPlayerOffset = playerSpacing/2;
   yPlayerOffset = moon.height;
+  xOffset = windowWidth/2;
   
   size(windowWidth, windowHeight);
   
-  // initialize the players
-  players = new Player[numPlayers];
-  for(int i = 0; i < numPlayers; i++) {
-    int x = xPlayerOffset + i * playerSpacing;
-    players[i] = new Player(i + 1, names[i], x, yPlayerOffset, 
-      playerKeys[i][0], playerKeys[i][1],playerKeys[i][2], playerKeys[i][3]);
-  }
-  
-  // randomize the moon man's body position
+  // initialize some values
+  playersInit();
   randomizeBody();
-  // randomize the time until the new position is drawn
   randomizeTime();
-  // wait for a period of time before drawing the moon man
-  waiting = true;
 }
 
 /////////////////////////////////////////////////////////////
@@ -115,24 +112,39 @@ void setup() {
 void draw() {
   background(0);
   image(moon, 0, 0);
-  for(int i = 0; i < numPlayers; i++) {
-    players[i].display();
-  }
-  if(waiting) {
-    drawBody(false, false, false, false);
-    if(millis() > waitTime) {
-      waiting = false;
-      for(int i = 0; i < numPlayers; i++) {
-        players[i].reset();
-      }
-    }
+  if (menu) {
+    drawMenu();
   }
   else {
-    drawBody();
+    drawPlayers();
+    if(waiting) {
+      drawBody(false, false, false, false);
+      if(millis() > waitTime) {
+        waiting = false;
+        playersReset();
+      }
+    }
+    else {
+      drawBody();
+    }
   }
-  int h = 170;
-  int w = (int) (h * 1.0/helmet.height * helmet.width);
-  image(helmet, width/2 - h/2 -20, 50, w, h);
+}
+
+void drawMenu() {
+  textSize(200);
+  fill(highlight);
+  text("MOON MAN", 100, 220);
+  String s = "Press '" + startKey + "' to play";
+  textSize(24);
+  text(s, 140, 200);
+  drawBody(false, false, false, false);
+  drawPlayers();
+}
+
+void drawPlayers() {
+  for(int i = 0; i < numPlayers; i++) {
+    players[i].display();   
+  }
 }
 
 void drawBody() {
@@ -141,34 +153,15 @@ void drawBody() {
 }
 
 void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
-  int xOffset = width/2;
-  int yOffset = 100;
-  int bodyLength = 200;
-  int highlight = 255;
-  int stickColor = 0;
+  
   // body
   fill(255);
   stroke(stickColor);
   strokeWeight(10);
   line(xOffset, yOffset, xOffset, yOffset + bodyLength);
   
-  /*
-  // head
-  ellipseMode(CENTER);
-  ellipse(xOffset, yOffset, 100, 100);
-  // face
-  strokeWeight(6);
-  ellipse(xOffset - 10, yOffset, 10, 10);
-  ellipse(xOffset + 10, yOffset, 13, 13);
-  line(xOffset - 14, yOffset + 20, xOffset + 7, yOffset + 20);
-  */
-  
   strokeWeight(10);
   // left hand
-  int armHeight = 80;
-  int legHeight = bodyLength;
-  int footLen = 20;
- 
   if (!lh) {
     stroke(stickColor);
     fill(stickColor);
@@ -219,7 +212,14 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
     stroke(highlight);
     fill(highlight);
     line(xOffset, yOffset + legHeight, xOffset + 90, yOffset + legHeight + 30);
-  }  
+  } 
+  drawHelmet(); 
+}
+
+void drawHelmet() {
+  int h = 170;
+  int w = (int) (h * 1.0/helmet.height * helmet.width);
+  image(helmet, width/2 - h/2 -20, 50, w, h);
 }
 
 
@@ -227,8 +227,11 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
 //KEYBOARD INPUT/////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void keyPressed() {
-  if (key == 'r') {
+  if (key == restartKey) {
     restart();
+  }
+  else if (key == startKey) {
+    playGame();
   }
   else if(!waiting) {
     for(int i = 0; i < numPlayers; i++) {
@@ -259,6 +262,21 @@ void keyPressed() {
 /////////////////////////////////////////////////////////////
 //OTHER FUNCTIONS////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
+void playersInit() {
+  players = new Player[numPlayers];
+  for(int i = 0; i < numPlayers; i++) {
+    int x = xPlayerOffset + i * playerSpacing;
+    players[i] = new Player(i + 1, names[i], x, yPlayerOffset, 
+      playerKeys[i][0], playerKeys[i][1],playerKeys[i][2], playerKeys[i][3]);
+  }
+}
+
+void playersReset() {
+  for(int i = 0; i < numPlayers; i++) {
+    players[i].reset();
+  }
+}
+
 void nextBody() {
   waiting = true;
   reward = numPlayers * 4;
@@ -272,6 +290,11 @@ void restart() {
   for(int i = 0; i < numPlayers; i++){
     players[i].restart();
   }
+  menu = true;
+}
+
+void playGame() {
+  menu = false;
   waiting = true;
   randomizeBody();
   randomizeTime();
@@ -316,5 +339,6 @@ void finish(int num) {
   }
   noLoop();
 }
-  
+ 
+ 
   
