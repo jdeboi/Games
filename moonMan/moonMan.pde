@@ -57,10 +57,10 @@ int playerCount = 0;
 // position variables
 int windowWidth = 1400;
 int windowHeight = 780;
-int playerSpacing;
-int xPlayerOffset;
-int yPlayerOffset;
-int iconSize;
+int playerSpacing = windowWidth / (numPlayers + 1);
+int xPlayerOffset = playerSpacing/2;
+int yPlayerOffset = 30;
+int iconSize = (int) (playerSpacing/1.5);
 
 // images
 PImage moon;
@@ -73,8 +73,10 @@ char startKey = '0';
 // body variables
 color highlight = #C8FF52;
 color stickColor = 220;
-int xOffset;
-int yOffset = 100;
+int helmetX = windowWidth/2 - 100;
+int helmetY = 220;
+int xOffset = windowWidth/2;
+int yOffset = 350;
 int bodyLength = 200;
 int armHeight = 80;
 int legHeight = bodyLength;
@@ -85,20 +87,11 @@ int footLen = 20;
 //SETUP//////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void setup() {
+  size(windowWidth, windowHeight);
+  
   // images
   helmet = loadImage("helmet.png");
   moon = loadImage("moon2.jpg");
-  
-  // position variables
-  //windowWidth = moon.width;
-  //windowHeight = moon.height + 150;
-  playerSpacing = windowWidth / (numPlayers + 1);
-  iconSize = (int) (playerSpacing/1.5);
-  xPlayerOffset = playerSpacing/2;
-  yPlayerOffset = moon.height;
-  xOffset = windowWidth/2;
-  
-  size(windowWidth, windowHeight);
   
   // initialize some values
   playersInit();
@@ -133,12 +126,11 @@ void draw() {
 void drawMenu() {
   textSize(200);
   fill(highlight);
-  text("MOON MAN", 100, 220);
+  text("MOON MAN", 100, 380);
   String s = "Press '" + startKey + "' to play";
   textSize(24);
   text(s, 140, 200);
   drawBody(false, false, false, false);
-  drawPlayers();
 }
 
 void drawPlayers() {
@@ -153,15 +145,19 @@ void drawBody() {
 }
 
 void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
-  
   // body
   fill(255);
   stroke(stickColor);
-  strokeWeight(10);
+  strokeWeight(20);
   line(xOffset, yOffset, xOffset, yOffset + bodyLength);
-  
-  strokeWeight(10);
-  // left hand
+  drawLeftHand(lh);
+  drawRightHand(rh);
+  drawLeftFoot(lf);
+  drawRightFoot(rf);
+  drawHelmet(); 
+}
+
+void drawLeftHand(boolean lh) {
   if (!lh) {
     stroke(stickColor);
     fill(stickColor);
@@ -171,9 +167,10 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
     stroke(highlight);
     fill(highlight);
     line(xOffset, yOffset + armHeight, xOffset - 90, yOffset + armHeight);
-  }
-  
-  // right hand
+  }  
+}
+
+void drawRightHand(boolean rh) {
   if (!rh) {
     stroke(stickColor);
     fill(stickColor);
@@ -184,8 +181,9 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
     fill(highlight);
     line(xOffset, yOffset + armHeight, xOffset + 90, yOffset + armHeight);
   }
-  
-  // left leg/foot
+}
+
+void drawLeftFoot(boolean lf) {
   if (!lf) {
     stroke(stickColor);
     fill(stickColor);
@@ -194,15 +192,16 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
     // foot
     line(xOffset - 25, yOffset + legHeight + 60, xOffset - 25 - footLen, 
       yOffset + legHeight + 60);  
-}
+  }
   else {
     stroke(highlight);
     fill(highlight);
     // leg
     line(xOffset, yOffset + legHeight, xOffset - 90, yOffset + legHeight+ 30);
-  }
-  
-  // right leg/foot
+  }  
+}
+
+void drawRightFoot(boolean rf) {
   if (!rf) {
     stroke(stickColor);
     fill(stickColor);
@@ -213,13 +212,12 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
     fill(highlight);
     line(xOffset, yOffset + legHeight, xOffset + 90, yOffset + legHeight + 30);
   } 
-  drawHelmet(); 
 }
 
 void drawHelmet() {
-  int h = 170;
+  int h = 250;
   int w = (int) (h * 1.0/helmet.height * helmet.width);
-  image(helmet, width/2 - h/2 -20, 50, w, h);
+  image(helmet, helmetX, helmetY, w, h);
 }
 
 
@@ -277,6 +275,15 @@ void playersReset() {
   }
 }
 
+
+// game state change functions ///////////////
+void playGame() {
+  menu = false;
+  waiting = true;
+  randomizeBody();
+  randomizeTime();
+}
+
 void nextBody() {
   waiting = true;
   reward = numPlayers * 4;
@@ -293,13 +300,21 @@ void restart() {
   menu = true;
 }
 
-void playGame() {
-  menu = false;
-  waiting = true;
-  randomizeBody();
-  randomizeTime();
+void finish(int num) {
+  background(0);
+  image(moon, 0, 0);
+  fill(255);
+  textSize(50);
+  text("Player " + num + " wins!", 80, 190);
+  textSize(25);
+  text("Press 'r' to restart", 80, 230);
+  for(int i = 0; i < numPlayers; i++) {
+    players[i].display();
+  }
+  noLoop();
 }
 
+// randomize functions ///////////////////////
 void randomizeBody() {
   // bodyPart[0] - left hand
   // bodyPart[1] - right hand
@@ -326,19 +341,6 @@ void randomizeTime() {
   waitTime = millis() + 10 * (int) random(100, 400);
 }
 
-void finish(int num) {
-  background(0);
-  image(moon, 0, 0);
-  fill(255);
-  textSize(50);
-  text("Player " + num + " wins!", 80, 190);
-  textSize(25);
-  text("Press 'r' to restart", 80, 230);
-  for(int i = 0; i < numPlayers; i++) {
-    players[i].display();
-  }
-  noLoop();
-}
  
  
   

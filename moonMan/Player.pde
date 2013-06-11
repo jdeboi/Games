@@ -10,8 +10,8 @@ class Player {
   boolean out;
   boolean complete;
   PImage icon;
-  int scoreYOffset = 130;
-  int scoreXOffset = 10;
+  int scoreYOffset = 180;
+  int scoreXOffset = 30;
   
   Player(int num, String na, int xp, int yp, char lh, char rh, char lf, char rf) {
     number = num;
@@ -71,15 +71,14 @@ class Player {
       fill(255, 0, 0);
     }
     else if(complete) {
-      stroke(255);
-      fill(0, 255, 0);
+      stroke(highlight);
+      fill(highlight);
     }
     else {
-      stroke(0);
-      fill(0);
+      noFill();
     }
     noStroke();  
-    rect(xpos, ypos, playerSpacing, iconSize + 1.5 * iconSize);
+    rect(xpos, ypos - yPlayerOffset, playerSpacing, iconSize + yPlayerOffset * 3);
     int h;
     int w;
     if(icon.height > icon.width) {
