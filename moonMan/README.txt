@@ -11,7 +11,7 @@ Processing
 
 **Instructions**
 1. Setup your Makey Makey
-Connect fruit/conductive pads to Makey Makey key inputs using alligator clips. Make sure each player is connected to a ground pin (check the interwebs for examples) 
+Connect fruit/conductive pads to Makey Makey key inputs using alligator clips. Make sure each player is connected to a ground pin (check the interwebs for examples). 
 Depending on the number of players, you may need to edit the Makey Makey Settings.h file to make use of additional inputs. Check out this Sparkfun tutorial for information about reprogramming the Arduino: https://www.sparkfun.com/tutorials/388 
 
 2. Setup the Processing Moon Man sketch
