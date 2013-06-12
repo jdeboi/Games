@@ -28,7 +28,7 @@ char[][] playerKeys =
   // player 1: left hand, right hand, left foot, right foot
   {'z', 'x', 'c', 'v'},
   // player 2
-  {'u', 'i', 'o', 'p'},
+  {'q', 'w', 'e', 'r'},
   // player 3 ...
   {'a', 's', 'd', 'f'},
   {'h', 'j', 'k', 'l'},
@@ -67,20 +67,27 @@ PImage moon;
 PImage helmet;
 
 // keys
-char restartKey = 'r';
-char startKey = '0';
+char restartKey = '0';
+char startKey = 'p';
 
 // body variables
-color highlight = #C8FF52;
-color stickColor = 220;
 int helmetX = windowWidth/2 - 100;
 int helmetY = 220;
-int xOffset = windowWidth/2;
+int xOffset = windowWidth/2 + 50;
 int yOffset = 350;
 int bodyLength = 200;
-int armHeight = 80;
+int armHeight = 90;
 int legHeight = bodyLength;
 int footLen = 20;
+int armLength = 100;
+int legLength = 120;
+int bodyStroke = 25;
+int lineStroke = 4;
+
+// body colors
+color highlight = #C8FF52;
+color stickColor = 230;
+int lineColor = 215;
 
 
 /////////////////////////////////////////////////////////////
@@ -91,7 +98,7 @@ void setup() {
   
   // images
   helmet = loadImage("helmet.png");
-  moon = loadImage("moon2.jpg");
+  moon = loadImage("moon.jpg");
   
   // initialize some values
   playersInit();
@@ -104,7 +111,7 @@ void setup() {
 /////////////////////////////////////////////////////////////
 void draw() {
   background(0);
-  image(moon, 0, 0);
+  image(moon, 0, -140);
   if (menu) {
     drawMenu();
   }
@@ -126,10 +133,10 @@ void draw() {
 void drawMenu() {
   textSize(200);
   fill(highlight);
-  text("MOON MAN", 100, 380);
+  text("MOON MAN", 100, 230);
   String s = "Press '" + startKey + "' to play";
   textSize(24);
-  text(s, 140, 200);
+  text(s, 150, 275);
   drawBody(false, false, false, false);
 }
 
@@ -148,70 +155,113 @@ void drawBody(boolean lh, boolean rh, boolean lf, boolean rf) {
   // body
   fill(255);
   stroke(stickColor);
-  strokeWeight(20);
-  line(xOffset, yOffset, xOffset, yOffset + bodyLength);
+  strokeWeight(bodyStroke);
+  
   drawLeftHand(lh);
   drawRightHand(rh);
   drawLeftFoot(lf);
   drawRightFoot(rf);
+  drawBodyStick();
   drawHelmet(); 
 }
 
 void drawLeftHand(boolean lh) {
+  int deltaX;
+  int deltaY;
   if (!lh) {
     stroke(stickColor);
     fill(stickColor);
-    line(xOffset, yOffset + armHeight, xOffset - 25, yOffset + armHeight + 60);
+    deltaX = 35;
+    deltaY = (int) sqrt(armLength * armLength - deltaX * deltaX);
   }
   else {
     stroke(highlight);
     fill(highlight);
-    line(xOffset, yOffset + armHeight, xOffset - 90, yOffset + armHeight);
-  }  
+    deltaX = 95;
+    deltaY = (int) sqrt(armLength * armLength - deltaX * deltaX);
+  }
+  strokeWeight(bodyStroke);  
+  line(xOffset, yOffset + armHeight, xOffset - deltaX, yOffset + armHeight + deltaY);
+  strokeWeight(lineStroke);
+  stroke(lineColor);
+  line(xOffset, yOffset + armHeight, xOffset - deltaX, yOffset + armHeight + deltaY);
 }
 
 void drawRightHand(boolean rh) {
+  int deltaX;
+  int deltaY;
   if (!rh) {
     stroke(stickColor);
     fill(stickColor);
-    line(xOffset, yOffset + armHeight, xOffset + 25, yOffset + armHeight + 60);
+    deltaX = 35;
+    deltaY = (int) sqrt(armLength * armLength - deltaX * deltaX);
   }
   else {
     stroke(highlight);
     fill(highlight);
-    line(xOffset, yOffset + armHeight, xOffset + 90, yOffset + armHeight);
+    deltaX = 95;
+    deltaY = (int) sqrt(armLength * armLength - deltaX * deltaX); 
   }
+  strokeWeight(bodyStroke);  
+  line(xOffset, yOffset + armHeight, xOffset + deltaX, yOffset + armHeight + deltaY);
+  strokeWeight(lineStroke);
+  stroke(lineColor);
+  line(xOffset, yOffset + armHeight, xOffset + deltaX, yOffset + armHeight + deltaY);
 }
 
 void drawLeftFoot(boolean lf) {
+  int deltaX;
+  int deltaY;
   if (!lf) {
     stroke(stickColor);
     fill(stickColor);
     // leg
-    line(xOffset, yOffset + legHeight, xOffset - 25, yOffset + legHeight + 60);
-    // foot
-    line(xOffset - 25, yOffset + legHeight + 60, xOffset - 25 - footLen, 
-      yOffset + legHeight + 60);  
+    deltaX = 25;
+    deltaY = (int) sqrt(legLength * legLength - deltaX * deltaX);
   }
   else {
     stroke(highlight);
     fill(highlight);
     // leg
-    line(xOffset, yOffset + legHeight, xOffset - 90, yOffset + legHeight+ 30);
-  }  
+    deltaX = 100;
+    deltaY = (int) sqrt(legLength * legLength - deltaX * deltaX);
+  }
+  strokeWeight(bodyStroke);  
+  line(xOffset, yOffset + legHeight, xOffset - deltaX, yOffset + legHeight + deltaY);
+  strokeWeight(lineStroke);
+  stroke(lineColor);
+  line(xOffset, yOffset + legHeight, xOffset - deltaX, yOffset + legHeight + deltaY); 
 }
 
 void drawRightFoot(boolean rf) {
+  int deltaX;
+  int deltaY;
   if (!rf) {
     stroke(stickColor);
     fill(stickColor);
-    line(xOffset, yOffset + legHeight, xOffset + 25, yOffset + legHeight + 60);
+    deltaX = 25;
+    deltaY = (int) sqrt(legLength * legLength - deltaX * deltaX);
   }
   else {
     stroke(highlight);
     fill(highlight);
-    line(xOffset, yOffset + legHeight, xOffset + 90, yOffset + legHeight + 30);
+    deltaX = 100;
+    deltaY = (int) sqrt(legLength * legLength - deltaX * deltaX);
   } 
+  strokeWeight(bodyStroke);  
+  line(xOffset, yOffset + legHeight, xOffset + deltaX, yOffset + legHeight + deltaY);
+  strokeWeight(lineStroke);
+  stroke(lineColor);
+  line(xOffset, yOffset + legHeight, xOffset + deltaX, yOffset + legHeight + deltaY);
+}
+
+void drawBodyStick() {
+  strokeWeight(bodyStroke);
+  stroke(stickColor);
+  line(xOffset, yOffset, xOffset, yOffset + bodyLength);
+  strokeWeight(lineStroke);
+  stroke(lineColor);
+  line(xOffset, yOffset, xOffset, yOffset + bodyLength);
 }
 
 void drawHelmet() {
@@ -230,6 +280,9 @@ void keyPressed() {
   }
   else if (key == startKey) {
     playGame();
+  }
+  else if (key == 't') {
+    saveFrame("line-######.png");
   }
   else if(!waiting) {
     for(int i = 0; i < numPlayers; i++) {
