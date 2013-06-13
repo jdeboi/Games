@@ -25,8 +25,8 @@ String[] playerNames =
   "Chuck"
 };
 String[] questions = {
-  "Where is Russia?", //wrong palin, right oprah
-  "Kamala Harris is ________.", //wrong obama, right tina - attorney general of california
+  "Where is Russia?",
+  "Kamala Harris is ________.",
   "E = ",
   "What's the biggest number to which a human has counted?"
 };
