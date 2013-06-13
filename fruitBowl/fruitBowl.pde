@@ -27,7 +27,6 @@ String[] playerNames =
 String[] questions = {
   "Where is Russia?",
   "Kamala Harris is ________.",
-  "E = ",
   "What's the biggest number to which a human has counted?"
 };
 // keys
@@ -193,10 +192,7 @@ void drawFinish() {
 //KEYBOARD INPUT/////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void keyPressed() {
-  if (key == 'c') {
-    saveFrame("line-######.png");
-  }
-  else if (menu) {
+  if (menu) {
     if (key == startKey) {
       menu = false;
     }
@@ -217,16 +213,19 @@ void keyPressed() {
       }
     }
     
+    // perhaps the host would like to move to the next question
+    else if (key == nextKey) {
+      nextQuestion();
+      println("works?");
+    }
+    
     // if not previously buzzed and if the correct answer hasn't
     // been provided, check to see if a player buzzed in
     else if (!answered) {
       checkPlayerKeys();
     }
     
-    // or perhaps the host would like to move to the next question
-    else if (key == nextKey) {
-      nextQuestion();
-    }
+    
   }
 }
 
