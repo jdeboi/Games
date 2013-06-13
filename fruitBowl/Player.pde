@@ -17,7 +17,7 @@ class Player {
      letter = l;
      name = n;
      lit = false;
-     icon = loadImage(number + ".png");
+     icon = loadImage("/players/" + number + ".png");
    }
    
    void display() {

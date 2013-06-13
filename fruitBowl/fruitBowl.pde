@@ -30,6 +30,12 @@ String[] questions = {
   "E = ",
   "What's the biggest number to which a human has counted?"
 };
+// keys
+char startKey = 'p';
+char nextKey = startKey;
+char wrongKey = 'w';
+char correctKey = 'r';
+char restartKey = 'n';
 /////////////////////////////////
 
 Player[] players;
@@ -39,13 +45,6 @@ PImage fruitBowl;
 PImage cfl;
 PImage cflLit;
 int cflScale;
-
-// keys
-char startKey = 'p';
-char nextKey = startKey;
-char wrongKey = 'w';
-char correctKey = 'r';
-char restartKey = 'n';
 
 // boolean state variables
 boolean buzzed = false;
@@ -94,9 +93,9 @@ void setup() {
   yPlayerOffset = 250;
   
   // load images
-  fruitBowl = loadImage("fruitbowl.jpg");
-  cfl = loadImage("cfl0.png");
-  cflLit = loadImage("cfl1.png");
+  fruitBowl = loadImage("/images/fruitbowl.jpg");
+  cfl = loadImage("/images/cfl0.png");
+  cflLit = loadImage("/images/cfl1.png");
   
   // initialize players
   players = new Player[numPlayers];
