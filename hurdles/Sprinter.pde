@@ -1,3 +1,4 @@
+
 class Sprinter {
   
   int x;
@@ -5,25 +6,32 @@ class Sprinter {
   String name;
   char leftKey;
   char rightKey;
+  
+  // step variables
   int steps;
+  float position;
   boolean leftDown;
   boolean rightDown;
+  boolean recorded;
+  
+  // jumping variables
   boolean airborne;
   int airTime;
-  int lastStep;
-  int lastTime;
-  int hurdleNum;
-  float position;
-  float speed;
-  int currentHurdle;
   boolean jumping;
   int jumpCount;
+  int jumpHeight;
+  
+  // hurdle variables
+  int currentHurdle;
   boolean fallDown;
   int fallDownCount;
+  
+  // images
   PImage[] images;
   int numImages;
+  int imgw;
   int frame;
-  boolean recorded;
+  int frameMultiplier;
   
   Sprinter(int xp, int yp, String n, char l, char r, int ni) {
     x = xp;
@@ -31,59 +39,46 @@ class Sprinter {
     name = n;
     leftKey = l;
     rightKey = r;
-    numImages = ni;
     
     steps = 0;
+    position = 0;
+    airTime = 0;
+    currentHurdle = 0;
+    
     leftDown = true;
     rightDown = true;
     airborne = false;
-    airTime = 0;
-    lastStep = millis();
-    lastTime = millis();
-    hurdleNum = 0;
-    position = 0;
-    speed = 0;
-    currentHurdle = 0;
-    images = new PImage[numImages];
-
-    // load animation images
-    playerIndex++;
-    for(int i = 0; i < numImages; i++) {
-      String imageName = "/player" + playerIndex + "/" + i + ".png";
-      images[i] = loadImage(imageName);
-    }
+    
+    frameMultiplier = 1;
+    jumpHeight = 60;
+  
+    numImages = ni;
+    loadImages();
   }
   
   /////////////////////////////////////////////////////////////
   //DISPLAY SPRINTER///////////////////////////////////////////
   /////////////////////////////////////////////////////////////  
   void display() {
-    // displayStats();
-    // displaySpeedometer();
     // image 0 - fall down
     // image 1 - jump
     // image 2 - standing still (first image of run cycle)
-    int frameMultiplier = 3;
-    int jumpHeight = 60;
-    int imgw = (int) (images[2].width * 1.0 * sprinterHeight / images[2].height);
     float xpos = width * 1.0 / trackLength * position - imgw;
     if(!raceStarted) {
-      int w = images[2].width * sprinterHeight / images[2].height;
-      image(images[2], xpos, y, w, sprinterHeight);
+      image(images[2], xpos, y, imgw, sprinterHeight);
     }
     else if (fallDown){
-      int w = images[0].width * sprinterHeight / images[0].height;
-      image(cloud, xpos, y - 2 * jumpHeight, w, sprinterHeight);
-      image(images[0], xpos, y - jumpHeight, w, sprinterHeight); 
+      int wc = cloud.width * sprinterHeight / cloud.height;
+      int wp = images[0].width * sprinterHeight / images[0].height;
+      image(cloud, xpos, y - 2 * jumpHeight, wc, sprinterHeight);
+      image(images[0], xpos, y - jumpHeight, wp, sprinterHeight); 
     }
     else if(jumping) {
-      int w = images[1].width * sprinterHeight / images[1].height;
-      image(images[1], xpos, y - jumpHeight, w, sprinterHeight);
+      int wp = images[1].width * sprinterHeight / images[1].height;
+      image(images[1], xpos, y - jumpHeight, wp, sprinterHeight);
     }
     else {
-      int w = images[frame/frameMultiplier].width * 100 / 
-        images[frame/frameMultiplier].height;
-      image(images[frame/frameMultiplier], xpos, y, w, sprinterHeight);
+      image(images[frame/frameMultiplier], xpos, y, imgw, sprinterHeight);
     }
     frame++;
     if(frame == numImages * frameMultiplier) {
@@ -91,15 +86,12 @@ class Sprinter {
     }
   }
   
-  void displayStats() {
-    stroke(0);
-    fill(0);
-    strokeWeight(1);
-    textSize(14);
-    text(position, x, y + 130);
-    text("Jumping? " + jumping, x, y + 150);
+  void display(int xpos, int ypos) {
+    image(images[2], xpos, ypos - sprinterHeight, imgw, sprinterHeight);
   }
   
+  /*
+  // in case I decide to use speed
   void displaySpeedometer() {
     fill(200);
     strokeWeight(1);
@@ -109,26 +101,26 @@ class Sprinter {
     fill(255, 249, 45);
     rect(x, y + 180, s, 30);
   }
+  */
   
   /////////////////////////////////////////////////////////////
   //CHECK INPUTS///////////////////////////////////////////////
   /////////////////////////////////////////////////////////////
   void checkPressed(char k) {
-      if(k == leftKey){
-        airborne = false;
-        if(steps % 2 == 0) {
-          leftDown = true;
-          step();
-        } 
+    if(k == leftKey){
+      airborne = false;
+      if(steps % 2 == 0) {
+        leftDown = true;
+        step();
+      } 
+    }
+    else if(k == rightKey){
+      airborne = false;
+      if(steps % 2 == 1) {
+        rightDown = true;
+        step();
       }
-      else if(k == rightKey){
-        airborne = false;
-        if(steps % 2 == 1) {
-          rightDown = true;
-          step();
-        }
-      }
-   // }
+    }
   }
   
   void checkReleased(char k) {
@@ -146,7 +138,6 @@ class Sprinter {
         airborne = true;
       }
     }
-    
   }
   
   /////////////////////////////////////////////////////////////
@@ -225,9 +216,9 @@ class Sprinter {
     rightDown = true;
     airborne = false;
     airTime = 0;
-    hurdleNum = 0;
+    //hurdleNum = 0;
     position = 0;
-    speed = 0;
+    //speed = 0;
     recorded = false;
   }
   
@@ -277,6 +268,16 @@ class Sprinter {
     else {
       return 100;
     }
+  }
+
+  void loadImages() {
+    playerIndex++;
+    images = new PImage[numImages];
+    for(int i = 0; i < numImages; i++) {
+      String imageName = "/player" + playerIndex + "/" + i + ".png";
+      images[i] = loadImage(imageName);
+    }
+    imgw = (int) (images[2].width * 1.0 * sprinterHeight / images[2].height);
   }
 }
     

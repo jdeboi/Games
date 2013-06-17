@@ -9,39 +9,41 @@ jdeboi.com
 //VARIABLES//////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 
-///////////UPDATE////////////////
+///////////UPDATE//////////////////////////////
+///////////////////////////////////////////////
 int numSprinters = 6;
-int numHurdles = 5;
-int trackLength = 5000;
-String[] playerNames = {"Sonic", "Chewy", "Luigi", "Walker", "Mario", "Nyan"};
+int numHurdles = 4;
+int trackLength = 2000;
+String[] playerNames = {"Nyan", "Chewy", "Luigi", "Walker", "Mario", "Sonic"};
 char[][] playerKeys = 
 {
   // player 1: left, right
-  {'z', 'x'},
+  {'q', 'w'},
   // player 2: left, right
-  {'j', 'k'},
+  {'e', 'r'},
   //...
-  {'n', 'm'},
+  {'t', 'y'},
+  {'u', 'i'},
   {'o', 'p'},
-  {'g', 'h'},
-  {'c', 'v'}
+  {'g', 'h'}
 };
-int[] numCharacterImages = {12, 8, 5, 8, 3, 3};
+int[] numCharacterImages = {3, 8, 5, 8, 3, 12};
 int windowWidth = 1400;
 int windowHeight = 900;
-/////////////////////////////////
-
-float ratio = trackLength / windowWidth;
+char startKey = 's';
+///////////////////////////////////////////////
+///////////////////////////////////////////////
 
 //////MAY NEED ADJUSTMENT////////
 int fallDownStall = 80;
-int jumpThreshold = 300;
+int jumpThreshold = 200;
 /////////////////////////////////
 
 Sprinter[] sprinters;
 int[] hurdles;
 boolean raceStarted = false;
 boolean countStarted = false;
+boolean finishedRace = false;
 int startClock = 0;
 boolean hit = false;
 PFont f;
@@ -64,6 +66,7 @@ int xNumberOffset = xStartOffset + 30;
 int startLine = 0;
 int hurdleWidth = 10;
 int hurdleHeight = 60; 
+float ratio = trackLength / windowWidth;
 
 // scoreboard variables
 int countX = 150;
@@ -89,42 +92,38 @@ int jumpLength = (int) (ratio *
 /////////////////////////////////////////////////////////////
 void setup() {
   size(windowWidth, windowHeight, P3D);
-  hurdles = new int[numHurdles];
-  sprinters = new Sprinter[numSprinters];
-  finished = new int[numSprinters];
-  for(int i = 0; i < numSprinters; i++) {
-    int yp = yTopOffset + laneHeight * i - 30;
-    sprinters[i] = new Sprinter(0, yp, playerNames[i], playerKeys[i][0], 
-      playerKeys[i][1], numCharacterImages[i]);
-  }
   f = createFont("Arial", 80, true);
-  setHurdles();
-  cloud = loadImage("cloud.png");
+  cloud = loadImage("lakitu.png");
+  initSprinters();
+  initHurdles();
+  frameRate(60);
 }
 
 /////////////////////////////////////////////////////////////
 //DRAW///////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
 void draw() {
-  background(120);
-  translate(0, -100, -500);
-  
-  //TRACK//////////////////////
-  pushMatrix();
-    rotateX(angle * PI / 180);
-    lights();
-    //ambientLight(200, 200, 200);
-    drawTrack();
-    drawLines();
-    drawStart();
-    drawNumbers();
-    drawHurdles();
-    drawScoreBoard();
-    drawFinishLine();
-  popMatrix();
-  ////////////////////////////
-  
-  //PLAYERS///////////////////
+  background(#000855);
+  if(finishedRace) {
+    drawFinish();
+  } 
+  else {
+    translate(0, -100, -500);
+    pushMatrix();
+      rotateX(angle * PI / 180);
+      lights();
+      directionalLight(200, 200, 200, 1, -1, -1);
+      drawTitle();
+      drawTrack();
+    popMatrix();
+    checkCount();
+    drawSprinters();
+    updateSprinters();
+  }
+  saveFrame("frames/####.tif");
+}
+
+void drawSprinters() {
   for (int i = 0; i < numSprinters; i++) {
     pushMatrix();
     int y = (int) ((yTopOffset + (i + 1.0 - .1) * laneHeight - 100) * cos(angle * PI / 180));
@@ -133,32 +132,33 @@ void draw() {
     sprinters[i].display();
     popMatrix();
   }
-  ////////////////////////////
-  
-  if (countStarted) {
-    if (millis() - startClock > 3000){
-      raceStarted = true;
-      countStarted = false;
-      raceTime = millis();
-    }
+}
+
+void drawTitle() {
+  if(!raceStarted && !countStarted) {
+    stroke(255);
+    fill(255);
+    textSize(350);
+    text("Hurdles", 0, 80);
+    textSize(60);
+    text("Press '" + startKey + "' to play", 80, 200);
   }
-  if (raceStarted) {
-    for (int i = 0; i < numSprinters; i++) {
-      sprinters[i].move();
-      if (sprinters[i].isFinished()) {
-        finished[finishedIndex] = i;
-        finishedIndex++;
-        if(finishedIndex == numSprinters) {
-          finish();
-        }
-      }  
-    }
-  }  
 }
 
 void drawTrack() {
+  drawConcrete();
+  drawLines();
+  drawStartLine();
+  drawNumbers();
+  drawNames();
+  drawHurdles();
+  drawScoreBoard();
+  drawFinishLine();
+}
+
+void drawConcrete() {
   // track 
-  fill(#7C3418);
+  fill(#FF7543);
   noStroke();
   pushMatrix();
   translate(0, 0, -1);
@@ -175,17 +175,15 @@ void drawLines() {
   for(int i = 0; i <= numLanes; i++) {
     int y = yTopOffset + laneHeight * i;
     rect(-500, y - lineWidth/2, windowWidth + 1000, lineWidth);
-    //line(-500, y, windowWidth + 1000, y);
   }
 }
 
-void drawStart() {
+void drawStartLine() {
   strokeWeight(10);
   fill(255);
   noStroke();
   int lineWidth = 10;
   rect(startLine, yTopOffset, lineWidth, trackHeight);
-  //line(startLine, yTopOffset, startLine, yTopOffset + trackHeight - 1);
 }
 
 void drawNumbers() {
@@ -196,7 +194,19 @@ void drawNumbers() {
   for (int i = 0; i < numLanes; i++) {
     int y = yTopOffset + laneHeight * i + textSize;
     textSize(textSize);
-    text((i + 1) + " " + playerNames[i], x, y);
+    text((i + 1), x, y);
+  }
+}
+
+void drawNames() {
+  fill(255);
+  stroke(255);
+  int textSize = 80;
+  int x = startLine + 90;
+  for (int i = 0; i < numSprinters; i++) {
+    int y = yTopOffset + laneHeight * i + textSize;
+    textSize(textSize);
+    text(playerNames[i], x, y);
   }
 }
 
@@ -215,21 +225,18 @@ void drawHurdles() {
 
 void drawScoreBoard() {
   drawCount(countX, countY);
-  drawRaceTime(scoreX + 400, scoreY + 50);
+  //drawRaceTime(scoreX + 440, scoreY + 50);
 }
 
 void drawCount(int x, int y) {
   fill(255);
-  textSize(130);
+  textSize(220);
   if(countStarted) {
      int time = 3 - (millis() - startClock)/1000;
      text(time, x, y);
   }
   else if (raceStarted) {
     text("GO", x, y);
-  }
-  else {
-    text("--", x, y);
   }
 }
 
@@ -243,8 +250,10 @@ void drawRank(int x, int y) {
 }
 
 void drawRaceTime(int x, int y) {
-  textSize(50);
-  text(getRaceTime() + "s", x, y);
+  if(raceStarted) {  
+    textSize(50);
+    text(getRaceTime() + "s", x, y);
+  }
 }
   
 void drawFinishLine() {
@@ -269,7 +278,35 @@ void drawFinishLine() {
     rect(xline + boxW, yTopOffset + i * laneHeight + boxH, boxW, boxH);
   }
   popMatrix();
-}  
+} 
+
+void drawFinish() {
+  int i = 0;
+  while(i < numSprinters) {
+    textSize(100);
+    if (i%2 == 0) {
+      fill(255);
+    }
+    else {
+      fill(#FF860D);
+    }
+    int ypos = 150 + i * 100;
+    
+    // sprinters
+    sprinters[finished[i]].display(160, ypos + 20);
+    
+    // numbers
+    text((i+1), 250, ypos);
+    
+    // sprinter names
+    textSize(50);
+    text(playerNames[finished[i]], 320, ypos);  
+    i++;
+  }
+  textSize(30);
+  fill(255);
+  text("Press '" + startKey + "' to play again", 200, 150 + i * 100);
+}
 
 /////////////////////////////////////////////////////////////
 //KEYBOARD INPUT/////////////////////////////////////////////
@@ -280,8 +317,8 @@ void keyPressed() {
       sprinters[i].checkPressed(key); 
     }
   }
-  else if (key == 's') {
-    loop();
+  else if (key == startKey) {
+    finishedRace = false;
     countStarted = true;
     startClock = millis();
   }
@@ -296,35 +333,69 @@ void keyReleased() {
 }
 
 /////////////////////////////////////////////////////////////
+//INITIALIZE FUNCTIONS///////////////////////////////////////
+/////////////////////////////////////////////////////////////
+void initSprinters() {
+  finished = new int[numSprinters];
+  sprinters = new Sprinter[numSprinters];
+  for(int i = 0; i < numSprinters; i++) {
+    int yp = yTopOffset + laneHeight * i - 30;
+    sprinters[i] = new Sprinter(0, yp, playerNames[i], playerKeys[i][0], 
+      playerKeys[i][1], numCharacterImages[i]);
+  }
+}
+
+void initHurdles() {
+  hurdles = new int[numHurdles];
+  int hurdleSpacing = trackLength / (numHurdles + 2);
+  for(int i = 0; i < numHurdles; i++) {
+    hurdles[i] = (i + 2) * hurdleSpacing;
+  }
+}
+
+/////////////////////////////////////////////////////////////
 //OTHER FUNCTIONS////////////////////////////////////////////
 /////////////////////////////////////////////////////////////
+void updateSprinters() {
+  if(raceStarted) {
+    for (int i = 0; i < numSprinters; i++) {
+      sprinters[i].move();
+      if (sprinters[i].isFinished()) {
+        finished[finishedIndex] = i;
+        finishedIndex++;
+        if(finishedIndex == numSprinters) {
+          finish();
+        }
+      }  
+    }
+  }
+}
+
+void checkCount() {
+  if (countStarted) {
+    if (millis() - startClock > 3000){
+      startRace();
+    }
+  }
+}
+
+void startRace() {
+  raceStarted = true;
+  countStarted = false;
+  raceTime = millis();
+}
+
 void finish(){
-  background(120);
-  String message = "Player " + (finished[0] + 1) + " wins!";
-  String message2 = "Player " + (finished[1] + 1) + " second!";
-  text(message, 100, 100);
-  text(message2, 100, 130);
+  finishedRace = true;
+  resetRace();
+}
+
+void resetRace() {
   for(int i = 0; i < numSprinters; i++){
     sprinters[i].restart();
   }
   raceStarted = false;
   finishedIndex = 0;
-  noLoop();
-}
-
-void setHurdles() {
-  int hurdleSpacing = trackLength / (numHurdles + 2);
-  for(int i = 0; i < numHurdles; i++) {
-    hurdles[i] = (i + 1) * hurdleSpacing;
-  }
-}
-
-void setRandomHurdles() {
-  for(int i = 0; i < numHurdles; i++) {
-    int lower = (int) (trackLength / numHurdles * i);
-    int upper = (int) (trackLength / numHurdles * (i + 1));
-    hurdles[i] = (int) random(lower, upper);
-  }
 }
    
 float getRaceTime() {
@@ -341,12 +412,23 @@ float getRaceTime() {
   }
 }
 
-void mouseDragged(){
-  // camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
-  // default: camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), 
-  //                 width/2.0, height/2.0, 0, 
-  //                 0, 1, 0)
-  camera(mouseX, mouseY, (height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height/2.0, 0, 0, 1, 0);
+/*
+// in case I decide to create random hurdles
+void setRandomHurdles() {
+  for(int i = 0; i < numHurdles; i++) {
+    int lower = (int) (trackLength / numHurdles * i);
+    int upper = (int) (trackLength / numHurdles * (i + 1));
+    hurdles[i] = (int) random(lower, upper);
+  }
 }
+*/
+
+/*
+// debugging 3D perspective
+void mouseDragged(){
+  camera(mouseX, mouseY, (height/2.0) / tan(PI*30.0 / 180.0), 
+    width/2.0, height/2.0, 0, 0, 1, 0);
+}
+*/
 
 
