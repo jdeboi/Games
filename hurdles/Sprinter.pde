@@ -49,7 +49,7 @@ class Sprinter {
     rightDown = true;
     airborne = false;
     
-    frameMultiplier = 1;
+    frameMultiplier = 2;
     jumpHeight = 60;
   
     numImages = ni;

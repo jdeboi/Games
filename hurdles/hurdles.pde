@@ -13,7 +13,7 @@ jdeboi.com
 ///////////////////////////////////////////////
 int numSprinters = 6;
 int numHurdles = 4;
-int trackLength = 2000;
+int trackLength = 5000;
 String[] playerNames = {"Nyan", "Chewy", "Luigi", "Walker", "Mario", "Sonic"};
 char[][] playerKeys = 
 {
@@ -29,7 +29,7 @@ char[][] playerKeys =
 };
 int[] numCharacterImages = {3, 8, 5, 8, 3, 12};
 int windowWidth = 1400;
-int windowHeight = 900;
+int windowHeight = 788;
 char startKey = 's';
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -120,7 +120,6 @@ void draw() {
     drawSprinters();
     updateSprinters();
   }
-  saveFrame("frames/####.tif");
 }
 
 void drawSprinters() {
