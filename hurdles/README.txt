@@ -20,6 +20,10 @@ If you haven't already downloaded Processing, get it here:
 https://processing.org/download/
 Download all of the files in the Hurdles folder on github. Open hurdles.pde. Edit the variables in the "UPDATE" section - most importantly the "playerKeys." These keys need to correspond to the keys associated with your Makey Makey inputs as specified in the Settings.h file.
 
+3. Gameplay
+Run in place to make the character move faster. Jump in the air to clear the hurdle. If you jump too soon or too late, Lakitu (cloud man) will slow you down. You may need to adjust the sensitivity of the jump threshold, which you can do by changing the variable, "jumpThreshold."
+
+**Characters**
 To add your own characters, replace the images in the "player" folders with your own sprites (make sure the background is transparent). Here's the breakdown of the images in the player directory:
 0.png - when the character hits a hurdle
 1.png - image of the character while jumping
@@ -28,7 +32,4 @@ To add your own characters, replace the images in the "player" folders with your
 4.png - run cycle #3
 ...
 
-Add many pics as you need. Edit the array, "numCharacterImages" so that the element in the array that corresponds to that particular player matches the number of images you've added to playerX's folder.
-
-3. Gameplay
-Run in place to make the character move faster. Jump in the air to clear the hurdle. If you jump too soon or too late, Lakitu (cloud man) will slow you down. You may need to adjust the sensitivity of the jump threshold, which you can do by changing the variable, "jumpThreshold."
+Add as many pics as you need. Edit the array, "numCharacterImages" so that the element in the array that corresponds to that particular player matches the number of images you've added to playerX's folder.
