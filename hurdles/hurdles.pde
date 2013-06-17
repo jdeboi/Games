@@ -28,8 +28,6 @@ char[][] playerKeys =
   {'g', 'h'}
 };
 int[] numCharacterImages = {3, 8, 5, 8, 3, 12};
-int windowWidth = 1400;
-int windowHeight = 788;
 char startKey = 's';
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -39,22 +37,30 @@ int fallDownStall = 80;
 int jumpThreshold = 200;
 /////////////////////////////////
 
+// window size
+int windowWidth = 1400;
+int windowHeight = 788;
+
 Sprinter[] sprinters;
 int[] hurdles;
+PImage cloud;
+PFont f;
+static int playerIndex;
+int sprinterHeight = 100;
+int[] finished;
+int finishedIndex;
+
+// boolean variables
 boolean raceStarted = false;
 boolean countStarted = false;
 boolean finishedRace = false;
-int startClock = 0;
 boolean hit = false;
-PFont f;
-float raceTime = 0;
-static int playerIndex;
-int[] finished;
-int finishedIndex;
-int sprinterHeight = 100;
-PImage cloud;
 
-// Track variables
+// time
+int startClock = 0;
+float raceTime = 0;
+
+// track variables
 int angle = 25;
 int yTopOffset = 300;
 int yBottomOffset = 100;
