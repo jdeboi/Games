@@ -15,7 +15,7 @@ Processing
 Connect aluminum foil to Makey Makey key inputs using alligator clips. Make sure each player is connected to a ground pin (check the interwebs for examples). 
 Depending on the number of players, you may need to edit the Makey Makey Settings.h file to make use of additional inputs. Check out this Sparkfun tutorial for information about reprogramming the Arduino: https://www.sparkfun.com/tutorials/388 
 
-2. Setup the Processing Fruit Bowl sketch
+2. Setup the Processing sketch
 If you haven't already downloaded Processing, get it here:
 https://processing.org/download/
 Download all of the files in the Hurdles folder on github. Open hurdles.pde. Edit the variables in the "UPDATE" section - most importantly the "playerKeys." These keys need to correspond to the keys associated with your Makey Makey inputs as specified in the Settings.h file.
